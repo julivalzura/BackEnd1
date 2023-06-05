@@ -1,96 +1,76 @@
 class ProductManager {
   constructor() {
     this.products = []
+    //Defino el constructor "products"
   }
 
-  getProducts() {
+  // Método para retornar nuestro arreglo de productos.
+  getProducts = () => {
     return this.products
   }
 
-  addProduct(title, description, price, thumbnail, code, stock) {
-    // Verificar si el código ya está en uso
-    const existingProduct = this.products.find(product => product.code === code)
-    if (existingProduct) {
-      throw new Error('El código del producto ya está en uso')
-    }
-
-    // Generar un nuevo ID para el producto
-    const id = this.generateId()
-
-    // Crear el objeto de producto
+  addProduct = (title, description, price, thumbnail, code, stock) => {
     const product = {
-      id,
       title,
       description,
       price,
       thumbnail,
       code,
       stock,
+      products: [], //array vacío
     }
 
-    // Agregar el producto al arreglo de productos
+    if (this.products.length === 0) {
+      product.id = 1
+    } else {
+      product.id = this.products[this.products.length - 1].id + 1
+    }
+
+    //pusheamos el producto
     this.products.push(product)
-
-    // Devolver el producto agregado
-    return product
   }
 
-  getProductById(id) {
-    const product = this.products.find(product => product.id === id)
-    if (!product) {
-      throw new Error('No se encontró el producto')
+  getProductById = idProduct => {
+    const productIndex = this.products.findIndex(
+      product => product.id === idProduct
+    )
+
+    if (productIndex === -1) {
+      console.log('Not found')
+      return
     }
-    return product
-  }
 
-  generateId() {
-    let id
-    do {
-      // Generar un ID único utilizando una cadena aleatoria
-      id = Math.random().toString(36).substr(2, 9)
-    } while (this.products.some(product => product.id === id))
+    const productAdd = this.products[productIndex].products.includes(idProduct)
 
-    return id
+    if (productAdd) {
+      console.log('El producto se agregó correctamente')
+      return
+    }
+    this.products[productIndex].products.push(idProduct)
   }
 }
 
-// Ejemplo de uso
-const productManager = new ProductManager()
-console.log(productManager.getProducts()) // []
-
-const newProduct = productManager.addProduct(
-  'producto prueba',
-  'Este es un producto prueba',
-  200,
-  'Sin imagen',
-  'abc123',
-  25
+const manejadorProductos = new ProductManager()
+manejadorProductos.addProduct('Copa', 'fragil', 2000, 'sin imágen', 'bar123', 5)
+manejadorProductos.addProduct(
+  'Vaso',
+  'rustico',
+  100,
+  'sin imágen',
+  'bar124',
+  20
 )
-console.log(newProduct) // El producto agregado
+manejadorProductos.addProduct(
+  'plato',
+  'postre',
+  1200,
+  'sin imágen',
+  'bar125',
+  15
+)
 
-console.log(productManager.getProducts()) // El producto agregado se encuentra en la lista de productos
+manejadorProductos.getProductById(1)
+manejadorProductos.getProductById(2)
+manejadorProductos.getProductById(3)
 
-// Intentar agregar un producto con el mismo código debe arrojar un error
-try {
-  productManager.addProduct(
-    'producto repetido',
-    'Este es otro producto',
-    300,
-    'Imagen',
-    'abc123',
-    10
-  )
-} catch (error) {
-  console.error(error.message) // "El código del producto ya está en uso"
-}
-
-// Obtener un producto por ID
-const productById = productManager.getProductById(newProduct.id)
-console.log(productById) // El producto agregado
-
-// Intentar obtener un producto con un ID no válido debe arrojar un error
-try {
-  const nonExistentProduct = productManager.getProductById('invalidId')
-} catch (error) {
-  console.error(error.message) // "No se encontró el producto"
-}
+console.log(manejadorProductos.getProducts())
